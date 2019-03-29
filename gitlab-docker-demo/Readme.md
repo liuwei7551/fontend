@@ -2,6 +2,7 @@
 
 * https://docs.gitlab.com/ce/ci/docker/using_docker_build.html
 参考文档
+
 *https://gitlab.com/liuwei7551/vue-ci-docker.git
 项目地址
 
