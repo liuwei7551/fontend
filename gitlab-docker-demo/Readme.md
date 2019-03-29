@@ -1,6 +1,9 @@
 # 基于 Gitlab 交付 Vue 的 Docker 镜像
 
 * https://docs.gitlab.com/ce/ci/docker/using_docker_build.html
+参考文档
+*https://gitlab.com/liuwei7551/vue-ci-docker.git
+项目地址
 
 Gitlab 提供了完整 CI/CD 功能并且集成了 docker 镜像服务, 可以在此基础上快速实现 docker 镜像交付.
 
