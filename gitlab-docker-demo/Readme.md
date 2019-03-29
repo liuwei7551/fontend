@@ -21,16 +21,16 @@ Gitlab 内集成了 registry 可以为所有项目提供 docker 镜像服务.
 ```
 npm install
 docker login # 输入用户名密码登陆
-docker built -t registry.gitlab.example.com/group/project -f Dockerfile . # 编译 Docker 镜像
-docker push registry.gitlab.example.com/group/project # 把 docker 镜像发布到 gitlab registry
+docker built -t registry.gitlab.com/group/project -f Dockerfile . # 编译 Docker 镜像
+docker push registry.gitlab.com/group/project # 把 docker 镜像发布到 gitlab registry
 ```
 
 本地测试docker环境编译执行:
 
 ```
 npm install
-docker build -t gitlab-go-docker-demo docker/test/Dockerfile .
-docker run gitlab-go-docker-demo
+docker build -t gitlab-docker-demo .
+docker run gitlab-docker-demo
 ```
 
 ## Gitlab CI 配置
@@ -68,6 +68,7 @@ build:
   artifacts:
     paths:
       - dist/
+      - nginx/server.conf
   only:
     - docker-ci
     
@@ -79,13 +80,12 @@ docker:
     alias: docker
   variables:
     DOCKER_DRIVER: overlay2
-    DOCKER_HOST: tcp://localhost:2375
   before_script:
   - docker info
   script:
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  - docker build -t $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME .
-  - docker push $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest
+  - docker login -u ${USER_NAME} -p ${PASSWORD} ${REGISTRY_ADDRESS}
+  - docker build -t ${REGISTRY_ADDRESS}/${USER_NAME}/${PROJECT_NAME} .
+  - docker push ${REGISTRY_ADDRESS}/${USER_NAME}/${PROJECT_NAME}
 
 deploy:
   stage: deploy
@@ -98,18 +98,18 @@ deploy:
 在服务器上登陆 docker registry:
 
 ```
-docker login
+docker login ${REGISTRY_ADDRESS}
 ```
 
 登陆成功后拉取 docker 镜像:
 
 ```
 # 以测试服务器为例, 正式服务器需指定相应版本
-docker pull $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest
+docker pull ${REGISTRY_ADDRESS}/${USER_NAME}/${PROJECT_NAME}
 ```
 
 运行:
 
 ```
-docker run -p 80:80 -v /var/log/:/var/log/ --restart unless-stopped registry.gitlab.example.com/group/project/test
+docker run -d -v /var/log/nginx/:/var/log/nginx/ -p 80:80 --restart unless-stopped ${REGISTRY_ADDRESS}/${USER_NAME}/${PROJECT_NAME}
 ```
